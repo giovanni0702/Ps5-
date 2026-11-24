@@ -1,0 +1,241 @@
+---
+# =====================================================================
+#  Configurazione del monitor PS5
+#  Puoi modificare questo file direttamente da GitHub (icona della matita).
+#  Dopo ogni modifica il monitor usa i nuovi valori dall'esecuzione successiva.
+#  Se scrivi un valore non valido, il monitor si ferma e dice quale chiave è sbagliata.
+#  Non scrivere qui email, token o altri dati personali: vanno solo nei Secrets di GitHub.
+# =====================================================================
+
+# Prezzo totale massimo (prezzo + spedizione) in euro, valore incluso.
+# Esempio: con 700 un'offerta da 700,00 € avvisa, una da 700,01 € no.
+prezzo_max_eur: 700
+
+# Sotto questo prezzo un oggetto non è considerato una console (accessori, giochi, moduli lettore).
+prezzo_min_console_eur: 250
+
+# Modelli per cui vuoi gli avvisi. Valori ammessi:
+# standard_disc (con lettore), digital, pro, altro_console (edizioni speciali), sconosciuto
+modelli_ammessi: [standard_disc, digital, pro, altro_console, sconosciuto]
+
+# Condizioni per cui vuoi gli avvisi. Valori ammessi: nuovo, ricondizionato, usato, sconosciuta
+condizioni_ammesse: [nuovo, ricondizionato, usato, sconosciuta]
+
+# Marketplace e venditori non ufficiali (true = ammessi, false = nessun avviso per quel tipo).
+marketplace:
+  ammessi: true          # offerte da piattaforme marketplace (Amazon Marketplace, eBay, Rebuy, Back Market, Subito)
+  venditori_terzi: true  # venditori professionali terzi
+  privati: true          # annunci di privati (Subito, eBay privati)
+
+# Sconto minimo, in percentuale, perché un'offerta sia considerata "in sconto" (numero, es. 5.0).
+soglia_sconto_pct: 5.0
+
+# Prezzi di listino ufficiali in euro (PlayStation Direct Italia).
+# null = non verificato: in quel caso lo sconto rispetto al listino non si calcola.
+# Non è stato possibile leggerli dal vivo durante la costruzione: inseriscili tu se li conosci (es. 549.99).
+listino_ufficiale:
+  standard_disc: null
+  digital: null
+  pro: null
+
+# Se il prezzo totale di un prodotto NUOVO è sotto questa percentuale del listino,
+# l'avviso parte con l'avvertenza "possibile errore di prezzo o truffa".
+soglia_prezzo_sospetto_pct: 50
+
+# Un prezzo barrato dichiarato dal negozio è accettato solo se non supera
+# il listino moltiplicato per questo fattore (protegge dai "prezzi barrati gonfiati").
+fattore_riferimento_max: 1.15
+
+# Un calo di prezzo genera un nuovo avviso se è di almeno questi euro OPPURE di almeno questa percentuale.
+delta_prezzo_min_eur: 5
+delta_prezzo_min_pct: 2
+
+# Minuti minimi tra due avvisi per la stessa offerta (salvo nuovo calo di prezzo o salto a P1/P2).
+cooldown_minuti: 120
+
+# Durata di ogni esecuzione su GitHub, in secondi (massimo 330 per restare sotto il limite di 7 minuti).
+durata_run_secondi: 270
+
+# Secondi tra l'inizio di un ciclo di controllo e il successivo (minimo 30). Variazione casuale ±10 s.
+intervallo_ciclo_secondi: 60
+
+# Secondi minimi tra due richieste allo stesso sito (rispetto dei siti, minimo 30).
+intervallo_dominio_secondi: 30
+
+# Zona per i negozi fisici. Coordinate pubbliche del centro città.
+area:
+  citta: Milano
+  lat: 45.4642
+  lon: 9.1900
+  raggio_km: 20
+
+notifiche:
+  # Canali attivi. Valori ammessi: ntfy, telegram, email. Predefinito solo ntfy.
+  # Per telegram o email servono i relativi Secrets (vedi SETUP.md).
+  canali: [ntfy]
+  # Ora (ora di Roma, formato HH:MM) del report giornaliero.
+  report_ora: "09:00"
+  # Server ntfy. Lascia https://ntfy.sh se non sai cosa sia.
+  ntfy_server: https://ntfy.sh
+
+# Parole che scartano sempre un titolo (accessori). Puoi aggiungerne.
+parole_escluse_forti:
+  - controller
+  - dualsense
+  - joystick
+  - gamepad
+  - cuffie
+  - headset
+  - pulse
+  - portal
+  - playstation portal
+  - base ricarica
+  - base di ricarica
+  - charging
+  - ricarica
+  - cover
+  - faceplate
+  - skin
+  - adesivo
+  - custodia
+  - borsa
+  - zaino
+  - ventola
+  - ssd
+  - hard disk
+  - hdd
+  - cavo
+  - alimentatore
+  - telecomando
+  - media remote
+  - hd camera
+  - psvr
+  - vr2
+  - ricambio
+  - ricambi
+  - riparazione
+  - supporto
+  - stand
+
+# Parole che scartano un titolo solo se non contiene "console". Puoi aggiungerne.
+parole_escluse_deboli:
+  - gioco
+  - giochi
+  - videogioco
+  - abbonamento
+  - gift card
+  - psn
+  - voucher
+  - codice
+
+# Parole che indicano un difetto dichiarato: l'annuncio viene scartato.
+parole_difetto:
+  - non funzionante
+  - guasta
+  - guasto
+  - rotta
+  - rotto
+  - difettosa
+  - per ricambi
+  - per pezzi di ricambio
+  - scatola vuota
+  - solo scatola
+  - box only
+  - bloccata
+  - da riparare
+
+# ---------------------------------------------------------------------
+# Fonti. Per ognuna:
+#   abilitata: true/false
+#   prodotti: elenco di URL fissi di pagine prodotto (controllati a rotazione, uno per ciclo)
+#   ricerca: URL della pagina di risultati, oppure null
+#   ricerca_ogni_cicli: ogni quanti cicli fare la ricerca se ci sono URL in "prodotti" (intero >= 1)
+# ATTENZIONE: nessuna di queste fonti è stata verificata dal vivo (vedi FONTI.md).
+# Lo stato reale si vede con il workflow "monitor" lanciato con l'opzione "diagnostica".
+# ---------------------------------------------------------------------
+fonti:
+  amazon:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.amazon.it/s?k=console+ps5
+    ricerca_ogni_cicli: 5
+  mediaworld:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.mediaworld.it/it/search.html?query=console%20ps5
+    ricerca_ogni_cicli: 5
+  unieuro:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.unieuro.it/online/?q=console%20ps5
+    ricerca_ogni_cicli: 5
+  euronics:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.euronics.it/search?q=console+ps5
+    ricerca_ogni_cicli: 5
+  expert:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.expertonline.it/search?q=console+ps5
+    ricerca_ogni_cicli: 5
+  trony:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.trony.it/online/search?q=console+ps5
+    ricerca_ogni_cicli: 5
+  fnac:
+    abilitata: false
+    prodotti: []
+    ricerca: null
+    ricerca_ogni_cicli: 5
+  eprice:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.eprice.it/search?qs=console+ps5
+    ricerca_ogni_cicli: 5
+  gamestop:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.gamestop.it/SearchResult/QuickSearch?q=console+ps5
+    ricerca_ogni_cicli: 5
+  psdirect:
+    abilitata: true
+    prodotti: []
+    ricerca: https://direct.playstation.com/it-it/buy-consoles
+    ricerca_ogni_cicli: 5
+  carrefour:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.carrefour.it/search?q=console+ps5
+    ricerca_ogni_cicli: 5
+  rebuy:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.rebuy.it/comprare/search?q=console+ps5
+    ricerca_ogni_cicli: 5
+  backmarket:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.backmarket.it/it-it/search?q=ps5
+    ricerca_ogni_cicli: 5
+  ebay:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.ebay.it/sch/i.html?_nkw=console+ps5&LH_PrefLoc=1
+    ricerca_ogni_cicli: 5
+  subito:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.subito.it/annunci-italia/vendita/usato/?q=console+ps5
+    ricerca_ogni_cicli: 5
+  trovaprezzi:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.trovaprezzi.it/prezzo_console_ps5.aspx
+    ricerca_ogni_cicli: 1
+  idealo:
+    abilitata: true
+    prodotti: []
+    ricerca: https://www.idealo.it/prezzi/ricerca.html?q=console+ps5
+    ricerca_ogni_cicli: 1
