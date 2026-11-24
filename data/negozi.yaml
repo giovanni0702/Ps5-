@@ -1,0 +1,26 @@
+---
+# Punti vendita delle catene entro il raggio di Milano (R8.3).
+# Solo dati commerciali pubblici dei negozi: nome, comune, indirizzo, telefono, coordinate.
+#
+# STATO: VUOTO. Durante la costruzione i siti delle catene non erano raggiungibili
+# dall'ambiente di sviluppo, quindi nessun negozio è stato verificato e nessun dato è stato inventato.
+# Se vuoi, aggiungi i negozi che conosci copiando questo schema (senza il # iniziale):
+#
+#   mediaworld:
+#     - nome: "MediaWorld Nome Negozio"
+#       comune: "Milano"
+#       indirizzo: "Via Esempio 1"
+#       telefono: "02 0000000"
+#       lat: 45.0000
+#       lon: 9.0000
+#
+# Il telefono viene mostrato negli avvisi quando la catena non indica la disponibilità per negozio.
+catene:
+  mediaworld: []
+  unieuro: []
+  euronics: []
+  expert: []
+  trony: []
+  fnac: []
+  gamestop: []
+  carrefour: []
