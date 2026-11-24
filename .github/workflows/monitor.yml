@@ -1,0 +1,65 @@
+---
+# Monitor PS5: parte ogni 5 minuti (minimo consentito da GitHub) e resta attivo circa 4,5 minuti.
+name: monitor
+
+"on":
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      diagnostica:
+        description: "Esegui solo la diagnostica delle fonti (tabella nel riepilogo)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # serve per salvare lo stato nel branch "stato"
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Scarica il codice
+        uses: actions/checkout@v4
+
+      - name: Prepara Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installa le dipendenze
+        run: pip install -r requirements.txt
+
+      - name: Scarica lo stato salvato
+        run: |
+          if git fetch --quiet --depth=1 origin stato 2>/dev/null; then
+            git show FETCH_HEAD:state.json > state.json || echo '{}' > state.json
+            echo "Stato scaricato dal branch stato."
+          else
+            echo '{}' > state.json
+            echo "Nessuno stato salvato: primo avvio."
+          fi
+
+      - name: Diagnostica delle fonti
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.diagnostica }}
+        run: python -m ps5monitor diagnostica
+
+      - name: Controlla le offerte
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.diagnostica) }}
+        env:
+          PS5_PUBBLICA_STATO: "1"
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python -m ps5monitor run

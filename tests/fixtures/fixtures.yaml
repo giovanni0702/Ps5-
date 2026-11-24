@@ -1,0 +1,28 @@
+---
+# Collega gli URL usati da "--fixture" ai file di questa cartella (pagine sintetiche, vedi README.md).
+# ricerca: file usato come pagina di ricerca della fonte
+# pagine: URL di pagina prodotto → file (usati dalla verifica R4.5)
+fonti:
+  amazon:
+    ricerca: amazon_ricerca.html
+    pagine:
+      "https://www.amazon.it/dp/B0TEST0001": amazon_prodotto_B0TEST0001.html
+      "https://www.amazon.it/dp/B0TEST0002": amazon_prodotto_B0TEST0002.html
+  mediaworld:
+    ricerca: mediaworld_ricerca.html
+    pagine:
+      "https://www.mediaworld.it/it/product/_sony-playstation-5-slim-standard-1000001.html": mediaworld_prodotto_1000001.html
+  unieuro:
+    ricerca: unieuro_ricerca.html
+    pagine:
+      "https://www.unieuro.it/online/Console/PS5-Slim-Digital-pid2000001": unieuro_prodotto_2000001.html
+  gamestop:
+    ricerca: gamestop_ricerca.html
+  ebay:
+    ricerca: ebay_ricerca.html
+    pagine:
+      "https://www.ebay.it/itm/111111111111": ebay_prodotto_111111111111.html
+  subito:
+    ricerca: subito_ricerca.html
+  trovaprezzi:
+    ricerca: trovaprezzi_ricerca.html

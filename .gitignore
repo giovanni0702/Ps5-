@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+# Stato locale: su GitHub vive solo nel branch "stato"
+state.json
+stato_fixture.json
+.env

@@ -1,0 +1,19 @@
+"""PlayStation Direct (direct.playstation.com). Negozio ufficiale Sony.
+
+Lettura basata sui dati strutturati schema.org (JSON-LD / Open Graph) della pagina.
+ATTENZIONE: fonte NON verificata dal vivo (sito non raggiungibile dall'ambiente di sviluppo):
+lo stato reale si vede con il workflow "monitor" lanciato con l'opzione "diagnostica".
+"""
+from .base import Source
+
+
+class PlayStationDirectSource(Source):
+    id = "psdirect"
+    nome = "PlayStation Direct"
+    tipo = "retailer"
+    ha_negozi_fisici = False
+    solo_nuovo = True
+    dominio = "direct.playstation.com"
+    venditore_tipo_predefinito = "negozio"
+    condizione_predefinita = None
+    catena = None

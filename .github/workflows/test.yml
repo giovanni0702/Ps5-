@@ -1,0 +1,31 @@
+---
+# Esegue tutti i test a ogni modifica del codice.
+name: test
+
+"on":
+  push:
+    branches-ignore:
+      - stato
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Installa le dipendenze
+        run: pip install -r requirements.txt
+      - name: Controlla i file YAML
+        run: yamllint .github/workflows config.yaml data/negozi.yaml tests/fixtures/fixtures.yaml
+      - name: Esegui i test
+        run: python -m pytest -q
+      - name: Prova il monitor sulle pagine di prova
+        run: python -m ps5monitor run --once --dry-run --fixture
