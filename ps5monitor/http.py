@@ -18,6 +18,7 @@ import requests
 
 TIMEOUT_S = 15
 JITTER_MAX_S = 10.0
+URL_MIN_INTERVAL_S = 60.0   # R6.2: ogni URL al massimo una volta ogni 60 s
 USER_AGENT = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
               "Chrome/130.0 Safari/537.36")
 HEADERS = {
@@ -79,6 +80,7 @@ class DomainScheduler:
         self.interval = float(interval)
         self.jitter_max = jitter_max
         self.last: dict[str, float] = dict(last or {})
+        self.url_last: dict[str, float] = {}
         self.clock = clock
         self.sleeper = sleeper
         self.rng = rng or random.Random()
@@ -89,7 +91,7 @@ class DomainScheduler:
         with self._guard:
             return self._locks.setdefault(domain, threading.Lock())
 
-    def acquire(self, domain: str, deadline: float | None = None) -> float:
+    def acquire(self, domain: str, deadline: float | None = None, url: str | None = None) -> float:
         """Attende il proprio turno; restituisce i secondi attesi. BudgetExceeded se oltre la scadenza."""
         with self._lock(domain):
             now = self.clock()
@@ -97,11 +99,15 @@ class DomainScheduler:
             wait = 0.0
             if prev is not None:
                 wait = max(0.0, prev + self.interval + self.rng.uniform(0, self.jitter_max) - now)
+            if url and url in self.url_last:
+                wait = max(wait, self.url_last[url] + URL_MIN_INTERVAL_S - now)
             if deadline is not None and now + wait + TIMEOUT_S > deadline:
                 raise BudgetExceeded(domain)
             if wait > 0:
                 self.sleeper(wait)
             self.last[domain] = self.clock()
+            if url:
+                self.url_last[url] = self.last[domain]
             return wait
 
 
@@ -112,7 +118,7 @@ class HttpFetcher:
         self.session.headers.update(HEADERS)
 
     def get(self, url: str, deadline: float | None = None) -> Response:
-        self.scheduler.acquire(domain_of(url), deadline)
+        self.scheduler.acquire(domain_of(url), deadline, url)
         t0 = time.monotonic()
         try:
             r = self.session.get(url, timeout=TIMEOUT_S, allow_redirects=True)
