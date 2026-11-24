@@ -22,7 +22,7 @@ class EmailChannel:
         m["From"] = self.env["SMTP_USER"]
         m["To"] = self.env["EMAIL_TO"]
         body = msg.text()
-        if msg.click:
+        if msg.click and msg.click not in body:
             body += f"\n\nLink: {msg.click}"
         m.set_content(body)
         return m

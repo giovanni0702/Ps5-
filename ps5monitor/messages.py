@@ -192,7 +192,7 @@ def blind_alarm_message(minutes: int) -> Message:
                    priority=4, tags=["warning"])
 
 
-def test_message(now: datetime) -> Message:
+def prova_message(now: datetime) -> Message:
     return Message(kind="prova", title="[PROVA] Notifica di prova del monitor PS5",
                    blocks=[f"Se leggi questo messaggio il canale funziona. Inviato il {fmt_dt(now)} (ora di Roma)."],
                    priority=3, tags=["white_check_mark"])

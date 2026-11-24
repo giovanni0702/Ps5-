@@ -243,12 +243,14 @@ class State:
         day2 = now - timedelta(days=2)
         self.data["avvisi_inviati"] = [t for t in self.data["avvisi_inviati"] if parse_iso(t) >= day2]
         self.data["non_consegnati"] = self.data["non_consegnati"][-100:]
-        # Sotto 1 MB: pota le osservazioni più vecchie finché serve.
-        while len(self.dumps().encode()) > MAX_BYTES:
-            oldest = None
-            for rec in self.offers.values():
-                if rec.get("storico") and (oldest is None or rec["storico"][0][0] < oldest["storico"][0][0]):
-                    oldest = rec
-            if oldest is None:
+        # Sotto 1 MB: pota le osservazioni più vecchie, a blocchi, finché serve.
+        size = len(self.dumps().encode())
+        while size > MAX_BYTES:
+            obs = sorted((h[0], id(rec), rec) for rec in self.offers.values() for h in rec.get("storico", [])[:1])
+            if not obs:
                 break
-            oldest["storico"].pop(0)
+            excess = size - MAX_BYTES
+            n = max(1, min(len(obs), excess // 30 + 1))
+            for _, _, rec in obs[:n]:
+                rec["storico"].pop(0)
+            size = len(self.dumps().encode())
