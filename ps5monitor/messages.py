@@ -96,7 +96,9 @@ def offer_block(sc: Scored, now: datetime, source_name: str, has_physical_stores
                      f"Sconto: {fmt_eur(sc.sconto_eur)} (-{fmt_pct(sc.sconto_pct)})")
     else:
         lines.append("Prezzo di riferimento: non disponibile · sconto non valutabile")
-    if o.spedizione_eur is None:
+    if o.solo_ritiro:
+        lines.append(f"Spedizione: non prevista (solo ritiro di persona) · Prezzo totale: {fmt_eur(sc.totale)}")
+    elif o.spedizione_eur is None:
         lines.append(f"Spedizione: da verificare · Prezzo totale (spedizione esclusa): {fmt_eur(sc.totale)}")
     elif o.spedizione_eur == 0:
         lines.append(f"Spedizione: gratuita · Prezzo totale: {fmt_eur(sc.totale)}")

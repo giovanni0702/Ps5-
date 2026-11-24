@@ -46,7 +46,7 @@ class Monitor:
     def __init__(self, cfg, state: State, sources: list, notifier, *, now: Callable[[], datetime] = utcnow,
                  out: Callable[[str], None] = print, state_path: str | None = None,
                  publisher: Callable[[str], bool] | None = None, sleeper=time.sleep,
-                 source_timeout: float = SOURCE_TIMEOUT_S, stores: dict | None = None):
+                 source_timeout: float = SOURCE_TIMEOUT_S, stores: dict | None = None, immediate: bool = True):
         self.cfg = cfg
         self.state = state
         self.sources = sources
@@ -58,6 +58,9 @@ class Monitor:
         self.sleeper = sleeper
         self.source_timeout = source_timeout
         self.stores = stores or {}
+        # immediate=False solo per --fixture: gli avvisi P1/P2 escono a fine ciclo in ordine stabile.
+        self.immediate = immediate
+        self.deferred: list[tuple[Scored, list[str]]] = []
         self.lock = threading.RLock()
         self.by_id = {s.id: s for s in sources}
         self.batch: list[tuple[Scored, list[str]]] = []
@@ -82,6 +85,7 @@ class Monitor:
     def cycle(self) -> CycleLog:
         self.log = CycleLog()
         self.batch = []
+        self.deferred = []
         now = self.now()
         st = self.state
         cycle_no = st.vol.get("cicli", 0)
@@ -107,6 +111,8 @@ class Monitor:
             st.data["avviato"] = True
             st.data.setdefault("avviato_il", iso(now))
         else:
+            for sc, ev in sorted(self.deferred, key=lambda x: sort_key(x[0])):
+                self._send_urgent(sc, ev)
             self._send_batch(now)
             self._maybe_daily_report(now)
             self._maybe_blind_alarm(now)
@@ -304,7 +310,15 @@ class Monitor:
             if sc.priorita not in (1, 2):
                 self.batch.append((sc, events))
                 return
-        # P1/P2: messaggio dedicato, subito, senza aspettare le altre fonti (R4.4)
+            if not self.immediate:
+                self.deferred.append((sc, events))
+                return
+        self._send_urgent(sc, events)
+
+    def _send_urgent(self, sc: Scored, events: list[str]) -> None:
+        """P1/P2: messaggio dedicato, subito, senza aspettare le altre fonti (R4.4)."""
+        now = self.now()
+        rec = self.state.record(sc.key)
         msg = alert_message(sc, self._block(sc, now, events), self._name(sc))
         self.deliver(msg)
         with self.lock:
