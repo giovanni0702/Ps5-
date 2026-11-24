@@ -12,7 +12,7 @@ from decimal import Decimal
 from typing import Callable
 
 from .alerts import alert_eligible, compute_events, cooldown_allows, validate_offer
-from .http import BlockedError, BudgetExceeded, domain_of
+from .http import BlockedError, BudgetExceeded
 from .messages import (ROME, Message, alert_message, batch_message, blind_alarm_message, offer_block,
                        startup_message)
 from .models import Offer, utcnow

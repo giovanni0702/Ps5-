@@ -1,7 +1,6 @@
 """Canali di notifica con richieste simulate (R10.8)."""
-from datetime import timezone, datetime
+from datetime import datetime, timezone
 
-import pytest
 
 from ps5monitor.messages import Message, prova_message
 from ps5monitor.notify import Notifier, mask
